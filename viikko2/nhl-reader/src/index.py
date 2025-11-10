@@ -12,6 +12,8 @@ def main():
         player = Player(player_dict)
         if player.nationality == preferred_nationality:
             players.append(player)
+    
+    players.sort(key=lambda p: p.points, reverse=True)
 
     print(f"Players from {preferred_nationality}:")
 
