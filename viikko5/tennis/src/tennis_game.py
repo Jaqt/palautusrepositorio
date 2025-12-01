@@ -1,55 +1,44 @@
 class TennisGame:
-    def __init__(self, player1_name, player2_name):
+    def __init__(self, player1_name: str, player2_name: str) -> None:
         self.player1_name = player1_name
         self.player2_name = player2_name
-        self.m_score1 = 0
-        self.m_score2 = 0
+        self._p1 = 0
+        self._p2 = 0
+        self.points = ["Love", "Fifteen", "Thirty", "Forty"]
+        self.min_points = 4
+        self.win_diff = 2
 
-    def won_point(self, player_name):
-        if player_name == "player1":
-            self.m_score1 = self.m_score1 + 1
+    def won_point(self, player_name: str) -> None:
+        if player_name in ("player1", self.player1_name):
+            self._p1 += 1
         else:
-            self.m_score2 = self.m_score2 + 1
+            self._p2 += 1
 
-    def get_score(self):
-        score = ""
-        temp_score = 0
+    def get_score(self) -> str:
+        if self._is_tie():
+            return self._format_tie()
 
-        if self.m_score1 == self.m_score2:
-            if self.m_score1 == 0:
-                score = "Love-All"
-            elif self.m_score1 == 1:
-                score = "Fifteen-All"
-            elif self.m_score1 == 2:
-                score = "Thirty-All"
-            else:
-                score = "Deuce"
-        elif self.m_score1 >= 4 or self.m_score2 >= 4:
-            minus_result = self.m_score1 - self. m_score2
+        if self._is_endgame():
+            return self._format_endgame()
 
-            if minus_result == 1:
-                score = "Advantage player1"
-            elif minus_result == -1:
-                score = "Advantage player2"
-            elif minus_result >= 2:
-                score = "Win for player1"
-            else:
-                score = "Win for player2"
-        else:
-            for i in range(1, 3):
-                if i == 1:
-                    temp_score = self.m_score1
-                else:
-                    score = score + "-"
-                    temp_score = self.m_score2
+        return self._format_regular()
 
-                if temp_score == 0:
-                    score = score + "Love"
-                elif temp_score == 1:
-                    score = score + "Fifteen"
-                elif temp_score == 2:
-                    score = score + "Thirty"
-                elif temp_score == 3:
-                    score = score + "Forty"
+    def _is_tie(self) -> bool:
+        return self._p1 == self._p2
 
-        return score
+    def _is_endgame(self) -> bool:
+        return self._p1 >= self.min_points or self._p2 >= self.min_points
+
+    def _format_tie(self) -> str:
+        if self._p1 >= 3:
+            return "Deuce"
+        return f"{self.points[self._p1]}-All"
+
+    def _format_endgame(self) -> str:
+        diff = self._p1 - self._p2
+        if abs(diff) >= self.win_diff:
+            return "Win for player1" if diff > 0 else "Win for player2"
+        return "Advantage player1" if diff > 0 else "Advantage player2"
+
+    def _format_regular(self) -> str:
+        return f"{self.points[self._p1]}-{self.points[self._p2]}"
