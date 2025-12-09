@@ -1,4 +1,4 @@
-from matchers import And, All, PlaysIn, HasAtLeast, HasFewerThan
+from matchers import And, Or, All, PlaysIn, HasAtLeast, HasFewerThan
 
 
 class QueryBuilder:
@@ -7,18 +7,29 @@ class QueryBuilder:
 
     def plays_in(self, team):
         uusi = PlaysIn(team)
-        self._matcher = And(self._matcher, uusi)
-        return self
+        uusi_matcher = And(self._matcher, uusi)
+        return QueryBuilder(uusi_matcher)
 
     def has_at_least(self, value, attr):
         uusi = HasAtLeast(value, attr)
-        self._matcher = And(self._matcher, uusi)
-        return self
+        uusi_matcher = And(self._matcher, uusi)
+        return QueryBuilder(uusi_matcher)
 
     def has_fewer_than(self, value, attr):
         uusi = HasFewerThan(value, attr)
-        self._matcher = And(self._matcher, uusi)
-        return self
+        uusi_matcher = And(self._matcher, uusi)
+        return QueryBuilder(uusi_matcher)
+    
+    def one_of(self, *queries):
+        matchers = []
+        for q in queries:
+            if isinstance(q, QueryBuilder):
+                matchers.append(q.build())
+            else:
+                matchers.append(q)
+
+        uusi_matcher = Or(*matchers)
+        return QueryBuilder(uusi_matcher)
 
     def build(self):
         return self._matcher
